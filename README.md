@@ -18,6 +18,8 @@ Bakhovskyi Maksym - python software developer
 ## Features
 
 - Fetch BTC→USD price every second
+- Compute and display BTC single average(10)
+- Retry on network or server errors with exponential backoff
 
 ---
 

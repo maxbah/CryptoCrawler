@@ -5,3 +5,4 @@ API_PARAMS = {
         "vs_currencies": "usd",
         "include_last_updated_at": "true"
     }
+MAX_RETRIES = 5

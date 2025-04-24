@@ -46,5 +46,5 @@ def test_parse_price_response(data, expected_dt, expected_price):
     """
     dt, price = BTCPricePoller.parse_price_response(data)
 
-    assert dt == expected_dt, f"Expected {expected_dt}, but got {dt}"
-    assert price == expected_price, f"Expected {expected_price}, but got {price}"
+    assert dt == expected_dt
+    assert price == expected_price

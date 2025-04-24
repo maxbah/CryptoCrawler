@@ -1,16 +1,24 @@
 import asyncio
+from collections import deque
 from datetime import datetime, timezone
 
 import aiohttp
 from aiohttp import ClientSession
 
-from configs.configuration import API_URL, API_PARAMS
+from configs.configuration import API_URL, API_PARAMS, MAX_RETRIES
+from logger import setup_logger
 
 
 class BTCPricePoller:
 
     def __init__(self):
         self.running = True
+        self.price_history = deque(maxlen=10)
+        self.logger = setup_logger("btc_price_poller", "btc_price_poller.log")
+
+    @staticmethod
+    def get_simple_average(prices):
+        return sum(prices) / len(prices) if prices else 0.0
 
     @staticmethod
     def parse_price_response(data: dict) -> tuple:
@@ -33,6 +41,8 @@ class BTCPricePoller:
         :param session: session
         :return: None
         """
+        backoff = 1
+        failures = 0
         count = 0
 
         while self.running:
@@ -46,8 +56,23 @@ class BTCPricePoller:
                     response.raise_for_status()
                     data = await response.json()
                     dt, price = self.parse_price_response(data)
-                    print(f"[{dt}] BTC → USD: ${price:,.2f}")
+                    self.price_history.append(price)
+                    sma = self.get_simple_average(self.price_history)
+                    print(f"[{dt}] BTC → USD: ${price:,.2f} | SMA(10): ${sma:,.2f}")
+                    failures = 0
+                    backoff = 1
             except Exception as e:
-                print("Failed to fetch BTC price", e)
-            await asyncio.sleep(1)
+                failures += 1
+                self.logger.error(f"Fetch attempt {failures} failed: {e}")
+                if failures <= MAX_RETRIES:
+                    print(f"Error: {e}. Retrying in {backoff}s...")
+                    await asyncio.sleep(backoff)
+                    backoff *= 2
+                    continue
+                else:
+                    self.logger.error("Max retries exceeded. Last error:{e}}")
+                    print("Max retries exceeded. Logging error and continuing polling.")
+                    failures = 0
+                    backoff = 1
+            await asyncio.sleep(2)
             count += 1
