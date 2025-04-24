@@ -47,7 +47,7 @@ pip install poetry
 poetry install
 poetry update 
 ```
-## Run
+## Run 
 
 ```bash
 python main.py
@@ -57,3 +57,16 @@ python main.py
 ```bash
 ctrl+C
 ```
+
+## Run on Docker (Docker should be installed)
+```bash
+docker build -t btc_price_poller .
+docker run --name=btc_price_poller -p 8000:8000 btc_price_poller
+```
+
+# Stop on Docker run
+
+```bash
+ctrl+C
+```
+or stop running docker container
