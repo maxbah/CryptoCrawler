@@ -9,37 +9,39 @@ from configs.configuration import API_URL, API_PARAMS, MAX_RETRIES
 from logger import setup_logger
 
 
-class BTCPricePoller:
+class CoinPricePoller:
 
-    def __init__(self):
+    def __init__(self, coin: str='bitcoin'):
+        self.coin = coin
         self.running = True
         self.price_history = deque(maxlen=10)
-        self.logger = setup_logger("btc_price_poller", "btc_price_poller.log")
+        self.logger = setup_logger("btc_price_poller",
+                                   "btc_price_poller.log")
+        API_PARAMS['ids'] = self.coin
+
 
     @staticmethod
-    def get_simple_average(prices):
+    def compute_average_of_ten(prices: deque[float]) -> float:
+        """
+        Method to commute average of 10 prices
+
+        :param prices: deque[float]
+        :return: float
+        """
         return sum(prices) / len(prices) if prices else 0.0
 
-    @staticmethod
-    def parse_price_response(data: dict) -> tuple:
+    def parse_price_response(self, data: dict) -> tuple:
         """
         Method to parse price response
-
-        :param data: dict
-        :return: tuple
         """
-        price = data["bitcoin"]["usd"]
-        timestamp = data["bitcoin"]["last_updated_at"]
+        price = data[self.coin]["usd"]
+        timestamp = data[self.coin]["last_updated_at"]
         dt = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
         return dt, price
 
-    async def fetch_price(self, session, limit=None) -> None:
+    async def fetch_price(self, session, limit: int = None) -> None:
         """
         Method to fetch price from API response
-
-        :param limit: int, default=None
-        :param session: session
-        :return: None
         """
         backoff = 1
         failures = 0
@@ -53,11 +55,11 @@ class BTCPricePoller:
                     if response.status >= 500:
                         raise Exception(f"Server error: HTTP {response.status}")
                     response.raise_for_status()
-                    data = await response.json()
+                    data: dict = await response.json()
                     dt, price = self.parse_price_response(data)
                     self.price_history.append(price)
-                    sma = self.get_simple_average(self.price_history)
-                    print(f"[{dt}] BTC → USD: ${price:,.2f} | SMA(10): ${sma:,.2f}")
+                    sma = self.compute_average_of_ten(self.price_history)
+                    print(f"[{dt}] {self.coin} → USD: ${price:,.2f} | SMA(10): ${sma:,.2f}")
                     failures = 0
                     backoff = 1
             except Exception as e:
@@ -78,4 +80,5 @@ class BTCPricePoller:
             count += 1
 
     def stop(self):
+        """ Method to stop tasks"""
         self.running = False

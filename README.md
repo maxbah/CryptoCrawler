@@ -3,7 +3,8 @@
 Live Bitcoin price poller with simple moving average and retry logic
 
 A Python tool that polls the [CoinGecko API](https://www.coingecko.com/en/api)
-every second to retrieve the current price of Bitcoin (BTC) in USD,
+every second to retrieve the current price of Bitcoin (BTC) in USD by default, 
+but there is an option to easily change to another coin, 
 displays a (SMA - simple moving average) of the last 10 prices,
 and handles errors with exponential backoff.
 
@@ -22,6 +23,7 @@ Bakhovskyi Maksym - python software developer
 - Retry on network or server errors with exponential backoff
 - Gracefully handle Ctrl+C (SIGINT)
 - Logs errors to btc_price_poller.log
+- Option to easily change to another coin
 
 ---
 
@@ -70,3 +72,10 @@ docker run --name=btc_price_poller -p 8000:8000 btc_price_poller
 ctrl+C
 ```
 or stop running docker container
+
+## RUN tests
+
+```bash
+pytest
+```
+

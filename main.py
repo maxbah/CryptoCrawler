@@ -1,15 +1,16 @@
 import asyncio
 import signal
 import sys
+from asyncio import AbstractEventLoop, Event
 
 import aiohttp
 
-from price_poller.poller import BTCPricePoller
+from price_poller.poller import CoinPricePoller
 
-poller = BTCPricePoller()
+poller = CoinPricePoller()  # Example(CoinPricePoller(coin='solana')))
 
 
-async def shutdown(sig, loop, stop_event):
+async def shutdown(sig: signal.Signals, loop: AbstractEventLoop, stop_event: Event) -> None:
     print(f"Shutting down...")
     poller.stop()
 
@@ -46,7 +47,7 @@ async def main():
 if __name__ == "__main__":
     try:
         # Comment 49 line if run from Docker and uncomment if run from Windows
-        # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         asyncio.run(main())
     except asyncio.CancelledError:
         pass
