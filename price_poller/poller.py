@@ -63,16 +63,19 @@ class BTCPricePoller:
                     backoff = 1
             except Exception as e:
                 failures += 1
-                self.logger.error(f"Fetch attempt {failures} failed: {e}")
+                print(f"Fetch attempt {failures} failed")
                 if failures <= MAX_RETRIES:
                     print(f"Error: {e}. Retrying in {backoff}s...")
                     await asyncio.sleep(backoff)
                     backoff *= 2
                     continue
                 else:
-                    self.logger.error("Max retries exceeded. Last error:{e}}")
+                    self.logger.error(f"Max retries exceeded. Last error:{e}")
                     print("Max retries exceeded. Logging error and continuing polling.")
                     failures = 0
                     backoff = 1
             await asyncio.sleep(2)
             count += 1
+
+    def stop(self):
+        self.running = False
