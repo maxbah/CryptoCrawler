@@ -33,11 +33,11 @@ class BTCPricePoller:
         dt = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
         return dt, price
 
-    async def fetch_price(self, session, limit=0) -> None:
+    async def fetch_price(self, session, limit=None) -> None:
         """
         Method to fetch price from API response
 
-        :param limit: int, default=0
+        :param limit: int, default=None
         :param session: session
         :return: None
         """
@@ -46,9 +46,8 @@ class BTCPricePoller:
         count = 0
 
         while self.running:
-            while self.running:
-                if limit is not None and count >= limit:
-                    break
+            if limit is not None and count >= limit:
+                break
             try:
                 async with session.get(API_URL, params=API_PARAMS) as response:
                     if response.status >= 500:
@@ -70,11 +69,12 @@ class BTCPricePoller:
                     backoff *= 2
                     continue
                 else:
-                    self.logger.error(f"Max retries exceeded. Last error:{e}")
+                    self.logger.error(f"Max retries exceeded. Last error: {e}")
                     print("Max retries exceeded. Logging error and continuing polling.")
                     failures = 0
                     backoff = 1
-            await asyncio.sleep(2)
+
+            await asyncio.sleep(1)
             count += 1
 
     def stop(self):

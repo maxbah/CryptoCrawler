@@ -20,6 +20,8 @@ Bakhovskyi Maksym - python software developer
 - Fetch BTC→USD price every second
 - Compute and display BTC single average(10)
 - Retry on network or server errors with exponential backoff
+- Gracefully handle Ctrl+C (SIGINT)
+- Logs errors to btc_price_poller.log
 
 ---
 
@@ -44,3 +46,14 @@ pip install poetry
 # Poetry actions
 poetry install
 poetry update 
+```
+## Run
+
+```bash
+python main.py
+```
+
+## Exit
+```bash
+ctrl+C
+```
