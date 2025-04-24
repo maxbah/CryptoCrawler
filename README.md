@@ -2,9 +2,9 @@
 
 Live Bitcoin price poller with simple moving average and retry logic
 
-A Python tool that polls the [CoinGecko API](https://www.coingecko.com/en/api) 
-every second to retrieve the current price of Bitcoin (BTC) in USD, 
-displays a (SMA - simple moving average) of the last 10 prices, 
+A Python tool that polls the [CoinGecko API](https://www.coingecko.com/en/api)
+every second to retrieve the current price of Bitcoin (BTC) in USD,
+displays a (SMA - simple moving average) of the last 10 prices,
 and handles errors with exponential backoff.
 
 ---
@@ -16,6 +16,8 @@ Bakhovskyi Maksym - python software developer
 ---
 
 ## Features
+
+- Fetch BTC→USD price every second
 
 ---
 
@@ -38,5 +40,5 @@ source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 pip install poetry
 
 # Poetry actions
-poetry init
+poetry install
 poetry update 
