@@ -46,8 +46,8 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        # Comment 49 line if run from Docker and uncomment if run from Windows
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        if sys.platform == "win32":
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         asyncio.run(main())
     except asyncio.CancelledError:
         pass
