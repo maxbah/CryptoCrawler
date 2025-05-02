@@ -2,23 +2,26 @@ import asyncio
 from collections import deque
 from datetime import datetime, timezone
 
-import aiohttp
 from aiohttp import ClientSession
 
-from configs.configuration import API_URL, API_PARAMS, MAX_RETRIES
+from configs.configuration import API_URL, MAX_RETRIES
 from logger import setup_logger
 
 
 class CoinPricePoller:
 
-    def __init__(self, coin: str='bitcoin'):
+    def __init__(self, coin: str = 'bitcoin', interval: int = 1):
         self.coin = coin
         self.running = True
+        self.interval = interval
         self.price_history = deque(maxlen=10)
-        self.logger = setup_logger("btc_price_poller",
-                                   "btc_price_poller.log")
-        API_PARAMS['ids'] = self.coin
-
+        self.logger = setup_logger(f"{self.coin}_price_poller",
+                                   f"{self.coin}_price_poller.log")
+        self.COIN_PARAMS = {
+            "ids": self.coin,
+            "vs_currencies": "usd",
+            "include_last_updated_at": "true"
+        }
 
     @staticmethod
     def compute_average_of_ten(prices: deque[float]) -> float:
@@ -51,7 +54,7 @@ class CoinPricePoller:
             if limit is not None and count >= limit:
                 break
             try:
-                async with session.get(API_URL, params=API_PARAMS) as response:
+                async with session.get(API_URL, params=self.COIN_PARAMS) as response:
                     if response.status >= 500:
                         raise Exception(f"Server error: HTTP {response.status}")
                     response.raise_for_status()
@@ -76,7 +79,7 @@ class CoinPricePoller:
                     failures = 0
                     backoff = 1
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(self.interval)
             count += 1
 
     def stop(self):
