@@ -7,12 +7,13 @@ import aiohttp
 
 from price_poller.poller import CoinPricePoller
 
-poller = CoinPricePoller()  # Example(CoinPricePoller(coin='solana')))
+pollers = [CoinPricePoller(coin='ethereum'),CoinPricePoller(coin='bitcoin'), CoinPricePoller('solana')]
 
 
 async def shutdown(sig: signal.Signals, loop: AbstractEventLoop, stop_event: Event) -> None:
     print(f"Shutting down...")
-    poller.stop()
+    for poller in pollers:
+        poller.stop()
 
     stop_event.set()
 
@@ -38,8 +39,9 @@ async def main():
         loop.add_signal_handler(signal.SIGINT, lambda: asyncio.create_task(shutdown(signal.SIGINT, loop, stop_event)))
 
     async with aiohttp.ClientSession() as session:
+        poller_tasks = [poller.fetch_price(session) for poller in pollers]
         await asyncio.gather(
-            poller.fetch_price(session),
+            *poller_tasks,
             stop_event.wait()  # await stop signal
         )
 
