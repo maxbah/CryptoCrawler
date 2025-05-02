@@ -1,12 +1,13 @@
 # CryptoCrawler
 
-Live Bitcoin price poller with simple moving average and retry logic
+Live Coins (by default=Bitcoin) price poller with simple moving average and retry logic
 
 A Python tool that polls the [CoinGecko API](https://www.coingecko.com/en/api)
-every second to retrieve the current price of Bitcoin (BTC) in USD by default, 
-but there is an option to easily change to another coin, 
+every interval in seconds to retrieve the current price of coin (default=Bitcoin) in USD, 
+but there is an option to easily change to another coin or even poll several coins,  
 displays a (SMA - simple moving average) of the last 10 prices,
 and handles errors with exponential backoff.
+Errors save to appropriated log file
 
 ---
 
@@ -18,12 +19,13 @@ Bakhovskyi Maksym - python software developer
 
 ## Features
 
-- Fetch BTC→USD price every second
-- Compute and display BTC single average(10)
+- Fetch COIN→USD price every interval in seconds
+- Compute and display coin single average(10)
 - Retry on network or server errors with exponential backoff
 - Gracefully handle Ctrl+C (SIGINT)
-- Logs errors to btc_price_poller.log
+- Logs errors to f'{coin_name}_price_poller.log'
 - Option to easily change to another coin
+- Poll several different coins 
 
 ---
 
